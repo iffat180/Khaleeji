@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary palette */
+    --gold: #C9A84C;
+    --gold-light: #E5D9A6;
+    --gold-dark: #9B7E2F;
+
+    --navy: #0D1B2A;
+    --navy-soft: #1F2937;
+    --navy-muted: #6B7280;
+
+    --sand: #F9F5EE;
+    --sand-dark: #F0EBE0;
+    --cream: #FDFCFA;
+
+    --success: #10B981;
+    --error: #EF4444;
+    --warning: #F59E0B;
+
+    /* Semantic tokens mapped as HSL for Tailwind */
+    --background: 36 57% 96%;           /* sand */
+    --foreground: 214 53% 11%;          /* navy */
+    --card: 45 71% 98%;                 /* cream */
+    --card-foreground: 214 53% 11%;
+    --popover: 45 71% 98%;
+    --popover-foreground: 214 53% 11%;
+    --primary: 45 51% 55%;              /* gold */
+    --primary-foreground: 214 53% 11%;
+    --secondary: 214 53% 11%;           /* navy */
+    --secondary-foreground: 36 57% 96%; /* sand */
+    --muted: 214 14% 70%;               /* navy-muted */
+    --muted-foreground: 214 14% 45%;
+    --accent: 45 51% 55%;
+    --accent-foreground: 214 53% 11%;
+    --border: 214 32% 90%;
+    --input: 214 32% 90%;
+    --ring: 45 51% 55%;
+
+    /* Radius scale */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* Typography */
+    --font-display: 'Crimson Pro', serif;
+    --font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  .arabic {
+    font-family: 'Cairo', 'Noto Naskh Arabic', sans-serif;
+    direction: rtl;
+    font-weight: 600;
+  }
+
+  /* Phrase card animation */
+  .phrase-card {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
