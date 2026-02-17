@@ -65,17 +65,17 @@ export default async function CourseModulePage({
 
   const userTier = profile?.tier || "free";
 
-  const module = await getModule(params.moduleSlug);
-  if (!module) {
+  const courseModule = await getModule(params.moduleSlug);
+  if (!courseModule) {
     redirect("/dashboard");
   }
 
   // Check if user can access this module
-  if (module.is_premium && userTier === "free") {
+  if (courseModule.is_premium && userTier === "free") {
     redirect("/pricing");
   }
 
-  const lessons = await getLessonsWithProgress(module.id, user.id, userTier);
+  const lessons = await getLessonsWithProgress(courseModule.id, user.id, userTier);
 
   const completedCount = lessons.filter((l) => l.completed).length;
   const totalCount = lessons.length;
@@ -87,9 +87,9 @@ export default async function CourseModulePage({
         <Link href="/dashboard" className="text-muted-foreground hover:text-foreground mb-4 inline-block">
           ← Back to Dashboard
         </Link>
-        <h1 className="text-3xl font-bold">{module.title}</h1>
-        {module.description && (
-          <p className="text-muted-foreground mt-2">{module.description}</p>
+        <h1 className="text-3xl font-bold">{courseModule.title}</h1>
+        {courseModule.description && (
+          <p className="text-muted-foreground mt-2">{courseModule.description}</p>
         )}
       </div>
 

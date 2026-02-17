@@ -104,8 +104,8 @@ export default async function LessonPage({
     redirect("/pricing");
   }
 
-  const module = lesson.modules as { id: string; slug: string; title: string };
-  const { prev, next } = await getLessonNavigation(module.id, lesson.order);
+  const courseModule = lesson.modules as { id: string; slug: string; title: string };
+  const { prev, next } = await getLessonNavigation(courseModule.id, lesson.order);
   const isCompleted = await checkLessonCompleted(user.id, lesson.id);
 
   let content: React.ReactNode = null;
@@ -138,7 +138,7 @@ export default async function LessonPage({
   const { data: moduleLessons } = await supabase
     .from("lessons")
     .select("id")
-    .eq("module_id", module.id);
+    .eq("module_id", courseModule.id);
 
   const totalLessons = moduleLessons?.length || 0;
 
@@ -146,10 +146,10 @@ export default async function LessonPage({
     <div className="container py-8 max-w-4xl">
       <div className="mb-6">
         <Link
-          href={`/courses/${module.slug}`}
+          href={`/courses/${courseModule.slug}`}
           className="text-muted-foreground hover:text-foreground mb-4 inline-block"
         >
-          ← Back to {module.title}
+          ← Back to {courseModule.title}
         </Link>
         <h1 className="text-3xl font-bold">{lesson.title}</h1>
       </div>
@@ -172,7 +172,7 @@ export default async function LessonPage({
             </Link>
           )}
           {!next && (
-            <Link href={`/courses/${module.slug}`}>
+            <Link href={`/courses/${courseModule.slug}`}>
               <Button variant="outline">Back to Module</Button>
             </Link>
           )}
