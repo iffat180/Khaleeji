@@ -156,11 +156,40 @@ export default async function DashboardPage() {
         </Card>
       )}
 
+      {/* Start Here CTA for new users */}
+      {completedLessons === 0 && (
+        <div className="mb-8 rounded-[var(--radius-lg)] bg-[var(--navy)] p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)] mb-2">
+              New here?
+            </p>
+            <h3 className="text-xl font-bold text-white">Start with Level 0: Foundations</h3>
+            <p className="text-white/60 text-sm mt-1">
+              Learn Arabizi and basic sentence building — free forever.
+            </p>
+          </div>
+          <Link
+            href="/courses/arabizi-pronunciation"
+            className="inline-flex shrink-0 items-center rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--gold)] to-[var(--gold-light)] px-5 py-2.5 text-sm font-semibold text-[var(--navy)] shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            Start Level 0 →
+          </Link>
+        </div>
+      )}
+
       {/* Modules Grid */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-6">All Courses</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Continue Learning</h2>
+          <Link
+            href="/courses"
+            className="text-sm font-medium text-[var(--gold)] hover:text-[var(--gold-dark)] transition-colors"
+          >
+            View all courses →
+          </Link>
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modulesWithProgress.map((module) => (
+          {modulesWithProgress.slice(0, 6).map((module) => (
             <ModuleCard key={module.id} module={module} />
           ))}
         </div>

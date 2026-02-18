@@ -84,9 +84,16 @@ export default async function CourseModulePage({
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <Link href="/dashboard" className="text-muted-foreground hover:text-foreground mb-4 inline-block">
-          ← Back to Dashboard
-        </Link>
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Link href="/courses" className="hover:text-primary transition-colors">
+            All Courses
+          </Link>
+          <span>/</span>
+          <span className="text-[var(--gold)] font-medium">
+            Level {courseModule.level}: {courseModule.level_title}
+          </span>
+        </div>
         <h1 className="text-3xl font-bold">{courseModule.title}</h1>
         {courseModule.description && (
           <p className="text-muted-foreground mt-2">{courseModule.description}</p>

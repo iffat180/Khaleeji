@@ -14,6 +14,8 @@ export interface Module {
   slug: string;
   description: string | null;
   order: number;
+  level: number;
+  level_title: string;
   is_premium: boolean;
   created_at: string;
 }
@@ -64,4 +66,6 @@ export interface ModuleWithProgress extends Module {
   lessons: LessonWithProgress[];
   completed_count: number;
   total_count: number;
+  progress_percent: number;
+  can_access: boolean;
 }
