@@ -38,9 +38,9 @@ export function LandingPricing() {
                   <span>Greetings & daily basics</span>
                 </li>
               </ul>
-              <Link href="/signup">
+              <Link href="/courses">
                 <Button variant="outline" className="mt-4 w-full">
-                  Start Free
+                  Browse Courses
                 </Button>
               </Link>
             </CardContent>
@@ -76,7 +76,7 @@ export function LandingPricing() {
                   <span>Quizzes & progress tracking</span>
                 </li>
               </ul>
-              <Link href="/pricing">
+              <Link href="#">
                 <Button className="mt-4 w-full">Get Pro</Button>
               </Link>
             </CardContent>
@@ -104,7 +104,7 @@ export function LandingPricing() {
                   <span>All future content</span>
                 </li>
               </ul>
-              <Link href="/pricing">
+              <Link href="#">
                 <Button variant="outline" className="mt-4 w-full">
                   Buy Lifetime
                 </Button>

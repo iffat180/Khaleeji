@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LessonRow } from "@/components/course/LessonRow";
-import { Lock } from "lucide-react";
-import type { Lesson, UserProgress } from "@/types";
 
-async function getModule(slug: string) {
+async function getModuleBySlug(slug: string) {
   const supabase = await createClient();
   const { data: module } = await supabase
     .from("modules")
@@ -15,115 +11,64 @@ async function getModule(slug: string) {
     .eq("slug", slug)
     .single();
 
-  return module;
-}
+  if (!module) return null;
 
-async function getLessonsWithProgress(moduleId: string, userId: string, userTier: string) {
-  const supabase = await createClient();
-  
   const { data: lessons } = await supabase
     .from("lessons")
-    .select("*")
-    .eq("module_id", moduleId)
-    .order("order");
+    .select("id, title, slug, type, order")
+    .eq("module_id", module.id)
+    .order("order", { ascending: true });
 
-  if (!lessons) return [];
-
-  const { data: progress } = await supabase
-    .from("user_progress")
-    .select("lesson_id")
-    .eq("user_id", userId);
-
-  const completedLessonIds = new Set(progress?.map((p) => p.lesson_id) || []);
-
-  return lessons.map((lesson) => ({
-    ...lesson,
-    completed: completedLessonIds.has(lesson.id),
-    can_access: !lesson.is_premium || userTier !== "free",
-  }));
+  return { ...module, lessons: lessons ?? [] };
 }
 
-export default async function CourseModulePage({
+export default async function ModulePage({
   params,
 }: {
-  params: { moduleSlug: string };
+  params: Promise<{ moduleSlug: string }>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { moduleSlug } = await params;
+  const moduleData = await getModuleBySlug(moduleSlug);
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  const userTier = profile?.tier || "free";
-
-  const courseModule = await getModule(params.moduleSlug);
-  if (!courseModule) {
-    redirect("/dashboard");
-  }
-
-  // Check if user can access this module
-  if (courseModule.is_premium && userTier === "free") {
-    redirect("/pricing");
-  }
-
-  const lessons = await getLessonsWithProgress(courseModule.id, user.id, userTier);
-
-  const completedCount = lessons.filter((l) => l.completed).length;
-  const totalCount = lessons.length;
-  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  if (!moduleData) notFound();
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Link href="/courses" className="hover:text-primary transition-colors">
-            All Courses
-          </Link>
-          <span>/</span>
-          <span className="text-[var(--gold)] font-medium">
-            Level {courseModule.level}: {courseModule.level_title}
-          </span>
-        </div>
-        <h1 className="text-3xl font-bold">{courseModule.title}</h1>
-        {courseModule.description && (
-          <p className="text-muted-foreground mt-2">{courseModule.description}</p>
+    <div className="min-h-screen bg-[var(--sand)]">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12">
+        <Link
+          href="/courses"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          ← Back to courses
+        </Link>
+        <h1 className="mt-4 text-3xl font-bold text-[var(--navy)]">
+          {moduleData.title}
+        </h1>
+        {moduleData.description && (
+          <p className="mt-2 text-muted-foreground">{moduleData.description}</p>
         )}
-      </div>
 
-      {/* Progress Card */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Module Progress</CardTitle>
-          <CardDescription>
-            {completedCount} of {totalCount} lessons completed
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="w-full bg-secondary rounded-full h-3">
-            <div
-              className="bg-primary h-3 rounded-full transition-all"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Lessons List */}
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold mb-4">Lessons</h2>
-        {lessons.map((lesson, index) => (
-          <LessonRow key={lesson.id} lesson={lesson} index={index + 1} total={lessons.length} />
-        ))}
+        <ul className="mt-8 border border-border rounded-[12px] bg-[var(--cream)] overflow-hidden">
+          {moduleData.lessons.map((lesson, index) => (
+            <li key={lesson.id} className="border-b border-border last:border-b-0">
+              <Link
+                href={`/lessons/${lesson.slug}`}
+                className="flex items-center gap-4 px-6 py-4 hover:bg-[var(--sand-dark)] transition-colors"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-semibold text-white">
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground">{lesson.title}</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {lesson.type.replace("_", " ")}
+                  </p>
+                </div>
+                <span className="text-muted-foreground">→</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

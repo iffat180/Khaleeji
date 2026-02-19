@@ -15,12 +15,12 @@ export function Footer() {
             <h4 className="text-sm font-semibold mb-4">Learn</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
-                  Dashboard
+                <Link href="/courses" className="text-muted-foreground hover:text-foreground">
+                  Courses
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
+                <Link href="#" className="text-muted-foreground hover:text-foreground">
                   Pricing
                 </Link>
               </li>

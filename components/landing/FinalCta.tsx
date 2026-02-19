@@ -11,12 +11,12 @@ export function FinalCta() {
         <p className="mt-4 text-lg text-[var(--navy-soft)]">
           Start with 5 free lessons from Module 1. No credit card required.
         </p>
-        <Link href="/signup">
+        <Link href="/courses">
           <Button
             size="lg"
             className="mt-8 bg-[var(--cream)] text-[var(--navy)] hover:bg-white"
           >
-            Start Free Now
+            Browse Courses
           </Button>
         </Link>
       </div>

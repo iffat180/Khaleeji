@@ -19,12 +19,12 @@ export function Hero() {
           actually use in Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, and Oman.
         </p>
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Link href="/signup">
+          <Link href="/courses">
             <Button size="lg" className="px-8 py-4 text-base md:text-lg">
-              Start Free — No Card Needed
+              Browse Courses
             </Button>
           </Link>
-          <Link href="/pricing">
+          <Link href="#">
             <Button
               size="lg"
               variant="outline"

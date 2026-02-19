@@ -9,7 +9,7 @@ import { FinalCta } from "@/components/landing/FinalCta";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[var(--sand)]">
+    <>
       <Hero />
       <PainPoints />
       <Solution />
@@ -18,7 +18,6 @@ export default function HomePage() {
       <Testimonials />
       <LandingPricing />
       <FinalCta />
-    </div>
+    </>
   );
 }
-

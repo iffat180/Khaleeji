@@ -1,182 +1,138 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 import { PhraseCard } from "@/components/lesson/PhraseCard";
 import { QuizBlock } from "@/components/lesson/QuizBlock";
-import { AudioPlayer } from "@/components/lesson/AudioPlayer";
-import { LessonProgress } from "@/components/lesson/LessonProgress";
-import { MarkCompleteButton } from "@/components/lesson/MarkCompleteButton";
-import type { Lesson, Phrase, QuizQuestion } from "@/types";
+import { Button } from "@/components/ui/button";
 
-async function getLesson(slug: string) {
+async function getLessonBySlug(slug: string) {
   const supabase = await createClient();
   const { data: lesson } = await supabase
     .from("lessons")
-    .select("*, modules(id, slug, title)")
+    .select("id, module_id, title, slug, type, order")
     .eq("slug", slug)
     .single();
 
-  return lesson;
-}
+  if (!lesson) return null;
 
-async function getPhrases(lessonId: string) {
-  const supabase = await createClient();
-  const { data: phrases } = await supabase
-    .from("phrases")
-    .select("*")
-    .eq("lesson_id", lessonId)
-    .order("order");
-
-  return phrases || [];
-}
-
-async function getQuizQuestions(lessonId: string) {
-  const supabase = await createClient();
-  const { data: questions } = await supabase
-    .from("quiz_questions")
-    .select("*")
-    .eq("lesson_id", lessonId)
-    .order("order");
-
-  return questions || [];
-}
-
-async function getLessonNavigation(moduleId: string, currentOrder: number) {
-  const supabase = await createClient();
-  
-  const { data: allLessons } = await supabase
-    .from("lessons")
-    .select("slug, order")
-    .eq("module_id", moduleId)
-    .order("order");
-
-  if (!allLessons) return { prev: null, next: null };
-
-  const currentIndex = allLessons.findIndex((l) => l.order === currentOrder);
-  const prev = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
-  const next = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
-
-  return { prev, next };
-}
-
-async function checkLessonCompleted(userId: string, lessonId: string) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("user_progress")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("lesson_id", lessonId)
+  const { data: module } = await supabase
+    .from("modules")
+    .select("id, title, slug")
+    .eq("id", lesson.module_id)
     .single();
 
-  return !!data;
+  const { data: moduleLessons } = await supabase
+    .from("lessons")
+    .select("slug, title, order")
+    .eq("module_id", lesson.module_id)
+    .order("order", { ascending: true });
+
+  const lessons = moduleLessons ?? [];
+  const currentIndex = lessons.findIndex((l) => l.slug === lesson.slug);
+  const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
+  const nextLesson =
+    currentIndex >= 0 && currentIndex < lessons.length - 1
+      ? lessons[currentIndex + 1]
+      : null;
+
+  if (lesson.type === "phrase_card") {
+    const { data: phrases } = await supabase
+      .from("phrases")
+      .select("*")
+      .eq("lesson_id", lesson.id)
+      .order("order", { ascending: true });
+    return { lesson, module, phrases: phrases ?? [], prevLesson, nextLesson };
+  }
+
+  if (lesson.type === "quiz") {
+    const { data: questions } = await supabase
+      .from("quiz_questions")
+      .select("*")
+      .eq("lesson_id", lesson.id)
+      .order("order", { ascending: true });
+    return { lesson, module, questions: questions ?? [], prevLesson, nextLesson };
+  }
+
+  return {
+    lesson,
+    module,
+    phrases: [] as any[],
+    questions: [] as any[],
+    prevLesson,
+    nextLesson,
+  };
 }
 
 export default async function LessonPage({
   params,
 }: {
-  params: { lessonSlug: string };
+  params: Promise<{ lessonSlug: string }>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { lessonSlug } = await params;
+  const data = await getLessonBySlug(lessonSlug);
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!data) notFound();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  const userTier = profile?.tier || "free";
-
-  const lesson = await getLesson(params.lessonSlug);
-  if (!lesson) {
-    redirect("/dashboard");
-  }
-
-  // Check if user can access this lesson
-  if (lesson.is_premium && userTier === "free") {
-    redirect("/pricing");
-  }
-
-  const courseModule = lesson.modules as { id: string; slug: string; title: string };
-  const { prev, next } = await getLessonNavigation(courseModule.id, lesson.order);
-  const isCompleted = await checkLessonCompleted(user.id, lesson.id);
-
-  let content: React.ReactNode = null;
-
-  if (lesson.type === "phrase_card") {
-    const phrases = await getPhrases(lesson.id);
-    content = (
-      <div className="space-y-6">
-        {phrases.map((phrase) => (
-          <PhraseCard key={phrase.id} phrase={phrase} />
-        ))}
-      </div>
-    );
-  } else if (lesson.type === "quiz") {
-    const questions = await getQuizQuestions(lesson.id);
-    content = (
-      <QuizBlock
-        questions={questions}
-        onComplete={async (score, total) => {
-          "use server";
-          // This will be handled client-side
-        }}
-      />
-    );
-  } else if (lesson.type === "audio") {
-    content = <AudioPlayer audioUrl={null} title={lesson.title} />;
-  }
-
-  // Get total lessons in module for progress
-  const { data: moduleLessons } = await supabase
-    .from("lessons")
-    .select("id")
-    .eq("module_id", courseModule.id);
-
-  const totalLessons = moduleLessons?.length || 0;
+  const { lesson, module } = data;
 
   return (
-    <div className="container py-8 max-w-4xl">
-      <div className="mb-6">
+    <div className="min-h-screen bg-[var(--sand)]">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12">
         <Link
-          href={`/courses/${courseModule.slug}`}
-          className="text-muted-foreground hover:text-foreground mb-4 inline-block"
+          href={module ? `/courses/${module.slug}` : "/courses"}
+          className="text-sm font-medium text-muted-foreground hover:text-foreground"
         >
-          ← Back to {courseModule.title}
+          ← Back to {module?.title ?? "courses"}
         </Link>
-        <h1 className="text-3xl font-bold">{lesson.title}</h1>
-      </div>
+        <h1 className="mt-4 text-3xl font-bold text-[var(--navy)]">
+          {lesson.title}
+        </h1>
 
-      <LessonProgress current={lesson.order} total={totalLessons} />
+        {lesson.type === "phrase_card" && data.phrases.length > 0 && (
+          <div className="mt-8 space-y-4">
+              {data.phrases.map((phrase, index) => (
+                <div key={phrase.id}>
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    Phrase {index + 1} of {data.phrases.length}
+                  </p>
+                  <PhraseCard phrase={phrase} />
+                </div>
+              ))}
+            </div>
+        )}
 
-      <div className="my-8">{content}</div>
+        {lesson.type === "quiz" && data.questions.length > 0 && (
+          <div className="mt-8">
+            <QuizBlock
+              questions={data.questions}
+              onComplete={() => {}}
+            />
+          </div>
+        )}
 
-      <div className="flex items-center justify-between mt-8 pt-8 border-t">
-        <MarkCompleteButton lessonId={lesson.id} isCompleted={isCompleted} />
-        <div className="flex gap-4">
-          {prev && (
-            <Link href={`/lessons/${prev.slug}`}>
-              <Button variant="outline">Previous Lesson</Button>
+        {((lesson.type === "phrase_card" && data.phrases.length === 0) ||
+          (lesson.type === "quiz" && data.questions.length === 0)) && (
+          <p className="mt-8 text-muted-foreground">No content yet.</p>
+        )}
+
+        <nav className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-8">
+          {data.prevLesson ? (
+            <Link href={`/lessons/${data.prevLesson.slug}`}>
+              <Button variant="outline">← Previous lesson</Button>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {data.nextLesson ? (
+            <Link href={`/lessons/${data.nextLesson.slug}`}>
+              <Button>Next lesson →</Button>
+            </Link>
+          ) : (
+            <Link href={module ? `/courses/${module.slug}` : "/courses"}>
+              <Button variant="outline">Back to module</Button>
             </Link>
           )}
-          {next && (
-            <Link href={`/lessons/${next.slug}`}>
-              <Button>Next Lesson</Button>
-            </Link>
-          )}
-          {!next && (
-            <Link href={`/courses/${courseModule.slug}`}>
-              <Button variant="outline">Back to Module</Button>
-            </Link>
-          )}
-        </div>
+        </nav>
       </div>
     </div>
   );

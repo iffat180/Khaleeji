@@ -61,7 +61,7 @@ export function ModulePreview() {
             </Card>
           ))}
         </div>
-        <Link href="/dashboard" className="mt-10 inline-block">
+        <Link href="/courses" className="mt-10 inline-block">
           <Button variant="outline">Browse all courses →</Button>
         </Link>
       </div>
