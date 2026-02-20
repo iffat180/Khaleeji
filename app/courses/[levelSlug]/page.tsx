@@ -73,8 +73,8 @@ async function getLevelWorkspaceData(slug: string) {
   });
 
   const flatLessons: FlatLesson[] = [];
-  for (const module of modules) {
-    const moduleLessons = lessonsByModule.get(module.id) ?? [];
+  for (const mod of modules) {
+    const moduleLessons = lessonsByModule.get(mod.id) ?? [];
     moduleLessons.sort((a, b) => a.order - b.order);
     for (const lesson of moduleLessons) {
       flatLessons.push({
@@ -85,7 +85,7 @@ async function getLevelWorkspaceData(slug: string) {
           type: lesson.type,
           order: lesson.order,
         },
-        module: { id: module.id, title: module.title, slug: module.slug },
+        module: { id: mod.id, title: mod.title, slug: mod.slug },
         phrases: phrasesByLesson.get(lesson.id) ?? [],
         questions: lesson.type === "quiz" ? questionsByLesson.get(lesson.id) : undefined,
       });
