@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">خليجي Khaleeji</h3>
+            <h3 className="text-lg font-semibold">Yalla Khaleeji</h3>
             <p className="text-sm text-muted-foreground">
               Learn the Arabic people actually speak in the Gulf.
             </p>
@@ -20,7 +20,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">
+                <Link href="/pricing" className="text-muted-foreground hover:text-foreground">
                   Pricing
                 </Link>
               </li>
@@ -58,7 +58,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Khaleeji. All rights reserved.
+          © {new Date().getFullYear()} Yalla Khaleeji. All rights reserved.
         </div>
       </div>
     </footer>

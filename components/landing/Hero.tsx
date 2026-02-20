@@ -41,7 +41,7 @@ export function Hero() {
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gold)]">
             ↓
           </span>
-          <span>Scroll to see how it works</span>
+          <span>Scroll to explore</span>
         </div>
       </div>
     </section>

@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Khaleeji — Learn the Arabic people actually speak in the Gulf",
+  title: "Yalla Khaleeji — Learn the Arabic people actually speak in the Gulf",
   description:
     "Learn Gulf Arabic (Khaleeji dialect) — the actual spoken dialect of Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, and Oman.",
 };
