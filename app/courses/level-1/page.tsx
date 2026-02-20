@@ -8,7 +8,7 @@ const MODULES: Module[] = [
   {
     number: 1,
     slug: "module-1",
-    title: "Introduction to Emirati Arabic",
+    title: "Introduction to SpokenGulf Arabic",
     lessons: [
       { id: "1.1", title: "What is Emirati Dialect?" },
       { id: "1.2", title: "MSA vs Spoken Emirati" },
@@ -146,7 +146,7 @@ export default function Level1OverviewPage() {
             </div>
 
             <h1 className="font-display text-3xl font-bold leading-tight text-[var(--navy)] sm:text-4xl lg:text-5xl">
-              Level 1 — Foundations of Spoken Emirati
+              Level 1 — Foundations of Spoken Gulf Arabic
             </h1>
             <p className="mt-4 text-base text-[var(--navy-soft)] sm:text-lg leading-relaxed max-w-2xl">
               Build your core understanding of Gulf Arabic pronunciation, structure, and survival communication.
